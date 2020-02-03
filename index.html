@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Quick Start - Leaflet</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" /> -->
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+        crossorigin=""></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDuF6tT8_Rh8E42oJ304R8Q6YWkx2cUmiI"></script>
+
+
+    <!-- set width and height styles for map -->
+    <style>
+        #map {
+            width: 960px;
+            height: 500px;
+        }
+
+        /* css to customize Leaflet default styles  */
+        .custom .leaflet-popup-tip,
+        .custom .leaflet-popup-content-wrapper {
+            /* background: #e93434; */
+            color: #ffffff;
+        }
+    </style>
+
+</head>
+
+<body>
+
+
+
+    <div id="mapid" style="width: 1280px; height: 720px;"></div>
+    <script>
+
+        const mymap = L.map('mapid').setView([51.505, -0.09], 13);
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+            maxZoom: 26,
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            id: 'mapbox/streets-v11'
+        }).addTo(mymap);
+        let j = 0, k = 0;
+        var radius = 10;
+        var pointAngleInRadians = 0;
+        var x, y;
+        for (var i = 0; i < 4; i++) {
+            makeMarker();
+            k += 0.0001;
+            j += 0.0001;
+
+
+
+        }
+
+
+
+
+
+        function makeMarker() {
+            // var marker = L.marker([51.5, -0.09]).addTo(mymap);  
+
+            // marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+
+            var customPopup = "<h1><a href='#' style='text-align:center'> Click able link</a><h1><br/><center><img src='img.png' alt='img not ofund' width='150px' height='150px'/></center?";
+
+            var customOptions =
+            {
+                'maxWidth': '500',
+                'className': 'custom'
+            }
+
+            // create marker object, pass custom icon as option, pass content and options to popup, add to map
+            L.marker([51.5 + j, -0.09 + k]).bindPopup(customPopup, customOptions).addTo(mymap);
+
+
+        }
+
+        var country = 'UK';
+        var p_CODE = '5171 KW';
+        $.get('https://maps.googleapis.com/maps/api/geocode/json?components=country:' + country + '|address:' + p_CODE + '&key=AIzaSyDuF6tT8_Rh8E42oJ304R8Q6YWkx2cUmiI', function (data) {
+            console.log(data.results[0].geometry["location"]);
+        });
+
+        var geocoder = new google.maps.Geocoder();
+        var housenumber = 1;
+        var postalcode = '5171 KW';
+
+        geocoder.geocode({
+            'componentRestrictions':
+                { 'postalCode': postalcode }, region: "nl"
+        }, function (results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                // get the LatLng of the postalcode
+                var result = results[0].geometry.location;
+
+                console.log( results[0].geometry["location"]);
+            }
+        });
+
+        // var infoWindow = new google.maps.InfoWindow({
+        //     map: mymap
+        // });
+
+
+
+        // codeAddress();
+        // function codeAddress() {
+        //     var geocoder = new google.maps.Geocoder;
+        //     var address = "The Guildhall, Market Hill, Cambridge CB2 3QJ, United Kingdom";
+        //     geocoder.geocode({ 'address': address }, function (results, status) {
+        //         if (status == google.maps.GeocoderStatus.OK) {
+        //            // mymap.setCenter(results[0].geometry.location);
+        //             var marker = new google.maps.Marker({
+        //                 map: mymap,
+        //                 position: results[0].geometry.location
+        //             });
+        //             console.log(results[0].geometry.location);
+        //             //TODO here attach your events to show info when marker is clicked
+        //         }
+        //         else {
+        //             alert('Geocode was not successful for the following reason: ' + status);
+        //         }
+        //     });
+        // }
+    </script>
+
+
+
+</body>
+
+</html>

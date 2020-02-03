@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Geocoding for Leaflet</title>
+</head>
+
+<body>
+    <!DOCTYPE html>
+    <html>
+
+    <head>
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v1.3.0/leaflet.css" />
+        <link rel="stylesheet" href="css.css" />
+        <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+            integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+            crossorigin=""></script>
+    </head>
+
+    <body>
+        <div id="mapid"></div>
+        <div id="error" class="tippy-tooltip honeybee-theme">
+            <p><b>No API and APPLICATION_ID key inserted </b></p>
+            <p><a target="_blank" href="http://docs.traveltimeplatform.com/overview/getting-keys/">Sign up for an API
+                    key</a>
+                <p>Place it in API and APPLICATION_ID variables</p>
+        </div>
+        <script>
+            var locationName = "Tour Eiffel, Paris, France";
+            // These secret variables are needed to authenticate the request. Get them from http://docs.traveltimeplatform.com/overview/getting-keys/ and replace
+            var APPLICATION_ID = "129245f8";
+            var API_KEY = "8f9c62c7236cc6b87f1bbee237eda387";
+
+            ///sending request
+            sendGeocodingRequest(locationName)
+                .then(function (data) {
+                    //and if it is success drawing map and marker
+                    drawMarker(data)
+                })
+                .catch(function (error) {
+                    if (APPLICATION_ID === "129245f8" || API_KEY === "8f9c62c7236cc6b87f1bbee237eda387") {
+                        document.getElementById("error").style.display = "block";
+                    }
+                    console.error(error)
+                });
+
+            function drawMarker(response) {  // We need to extract the coordinates from the response.
+
+                var coordinates = response.features[0].geometry.coordinates;  // The coordintaes are in a [<lng>, <lat>] format/
+
+                var latLng = L.latLng([coordinates[1], coordinates[0]])  // The url template for OpenStreetMap tiles.
+                var osmUrl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";     // Creates the tile layer.
+
+                var osmTileLayer = L.tileLayer(osmUrl, {
+                    minZoom: 8,
+                    maxZoom: 15
+                });  // Adds the tile layer to the map.
+
+                var map = L.map("mapid").addLayer(osmTileLayer);
+                map.setView(latLng, 11);  // Creates a marker for our departure location and adds it to the map.
+
+                var markter = L.marker(latLng).addTo(map);
+            };
+
+            function sendGeocodingRequest(location) {
+                return fetch(`https://api.traveltimeapp.com/v4/geocoding/search?query=` + location, {
+                    method: "GET",
+                    credentials: "same-origin",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Application-Id": APPLICATION_ID,
+                        "X-Api-Key": API_KEY
+                    }
+
+                })
+                    .then(response => response.json()); // parses JSON response into native Javascript objects
+            }
+        </script>
+        <style>
+            html,
+            body,
+            #mapid {
+                height: 100%;
+                width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+
+            #error {
+                position: absolute;
+                width: 80%;
+                margin: 0px;
+                z-index: 2000;
+                width: 270px;
+                border-radius: 5px;
+                max-width: 500px;
+                font-family: sans-serif;
+                font-size: 12px;
+                top: 30%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: white;
+                padding: 10px;
+                display: none;
+                text-align: center;
+            }
+        </style>
+    </body>
+
+    </html>
