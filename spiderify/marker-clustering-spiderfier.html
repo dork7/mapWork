@@ -28,18 +28,18 @@
 
 		var map = L.map('map', {center: latlng, zoom: 15, layers: [tiles]});
 
-		var markers = L.markerClusterGroup({ spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: false });
+		var cluster = L.markerClusterGroup({ spiderfyOnMaxZoom: false, showCoverageOnHover: false, zoomToBoundsOnClick: false });
 
 		function populate() {
 			for (var i = 0; i < 100; i++) {
 				var m = L.marker(getRandomLatLng(map));
 
 				var popup = L.popup()
-    			.setContent("I am a standalone popup.");
+    			.setContent("Click able user name");
 
 				m.bindPopup(popup).openPopup();
 
-				markers.addLayer(m);
+				cluster.addLayer(m);
 			}
 			return false;
 		}
@@ -56,22 +56,23 @@
 					southWest.lat + latSpan * Math.random(),
 					southWest.lng + lngSpan * Math.random());
 		}
-
-		markers.on('clusterclick', function (a) {
+		console.log(cluster.length);
+		cluster.on('clusterclick', function (a) {
 			a.layer.spiderfy();
 		});
 
 		populate();
-		map.addLayer(markers);
+		map.addLayer(cluster);
 
-		console.log(markers);
+ 
 
 		// gives the info of the cluster that is clicked
-		markers.on('clusterclick', function(event) {
+		cluster.on('clusterclick', function(event) {
 			// console.log("cluster clicked");
 			// console.log(event);
 
 			var testCluster = L.markerClusterGroup();
+
 			L.marker([event.latlng.lat, event.latlng.lng]).addTo(testCluster);
 			console.log(testCluster.getLayers());
 			     // console.log(testCluster._childClusters.length);
@@ -80,10 +81,27 @@
 
 
 		// show pop up on cluster
-		markers.on('clustermouseover', function(c) {
+		cluster.on('clustermouseover', function(c) {
+		var str = "<ul style = 'overflow:hidden; overflow-y:scroll;max-height:200px;'>";
+
+			// print the content of popup xd
+ 			for (var i = 0 ; i < c.layer.getAllChildMarkers().length; i++ ){
+
+						console.log(c.layer.getAllChildMarkers()[i]["_popup"]["_content"]);
+
+						var items = c.layer.getAllChildMarkers()[i]["_popup"]["_content"];
+
+						str += '<li><a href="#">'+ items +'</a></li>';
+
+
+
+  		 
+
+					}
           var popup = L.popup()
               .setLatLng(c.layer.getLatLng())
-              .setContent(c.layer._childCount +' Locations(click to Zoom)\n' + 'Number of markers: ' + c.layer.getAllChildMarkers().length)
+              .setContent(str)
+              // .setContent(c.layer._childCount +' Locations(click to Zoom)\n' + 'Number of markers: ' + c.layer.getAllChildMarkers())
               .openOn(map);
           }).on('clustermouseout',function(c){
                map.closePopup();
